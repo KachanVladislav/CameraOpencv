@@ -1,8 +1,9 @@
-import pickle
 import cv2
 import numpy as np
 from pathlib import Path
-import configparser
+import sys
+sys.path.insert(0, './config/')
+import configuration as conf
 
 
 def nothing(x):
@@ -32,11 +33,6 @@ def getColorRangeTrackbars():
     return np.array([h_min, s_min, v_min]), np.array([h_max, s_max, v_max])
 
 
-def get_config():
-    config = Path("./config/config.conf")
-    if not config.is_file():
-        print("Config file was not found, creating...")
-
 def found_hcv_bounds():
     createTrackbars()
     cap = cv2.VideoCapture(2)
@@ -59,11 +55,15 @@ def found_hcv_bounds():
         if  key == 27:#Esc
             return
         if key == 13:#Enter
+            conf.configSetHCVBounds(lower_green, upper_green)
             return lower_green, upper_green
         
         
 
 def main():
+    pass
+
+def setConfigDefault():
     pass
 
 if (__name__ == "__main__"):

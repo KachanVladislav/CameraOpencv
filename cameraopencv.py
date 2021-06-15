@@ -72,7 +72,7 @@ def main():
             # print(point)
             cv2.circle(frame, (point[0], point[1]), 10, (255, 0, 0), cv2.FILLED)
         # cv2.imshow("vau", frame)
-        
+        print(marker_points)
         width,height = 335,290
         matrix = calcPerspective(marker_points,width,height)
 
