@@ -6,30 +6,6 @@ import numpy as np
 # GREENMIN - very good //72.137.75
 # GREENMAX103.255.255
 
-def nothing(x):
-    pass
-
-def createTrackbars(): # for assignment
-    cv2.namedWindow("HSV Value")
-    cv2.createTrackbar("H MIN", "HSV Value", 0, 179, nothing)
-    cv2.createTrackbar("S MIN", "HSV Value", 0, 255, nothing)
-    cv2.createTrackbar("V MIN", "HSV Value", 0, 255, nothing)
-    cv2.createTrackbar("H MAX", "HSV Value", 179, 179, nothing)
-    cv2.createTrackbar("S MAX", "HSV Value", 255, 255, nothing)
-    cv2.createTrackbar("V MAX", "HSV Value", 255, 255, nothing)
-
-
-
-
-def getColorRange():
-    h_min = cv2.getTrackbarPos("H MIN", "HSV Value")
-    s_min = cv2.getTrackbarPos("S MIN", "HSV Value")
-    v_min = cv2.getTrackbarPos("V MIN", "HSV Value")
-    h_max = cv2.getTrackbarPos("H MAX", "HSV Value")
-    s_max = cv2.getTrackbarPos("S MAX", "HSV Value")
-    v_max = cv2.getTrackbarPos("V MAX", "HSV Value")
-    return np.array([h_min, s_min, v_min]), np.array([h_max, s_max, v_max])
-
 
 def getMarkersPoints(cap):
     lower_green = np.array([72, 137, 75])
