@@ -17,7 +17,7 @@ def checkConfig():
         createConfigDefault()
 
 
-def configSetHCVBounds(lower, upper):
+def configSetMarkersHCVBounds(lower, upper):
     checkConfig()
     
     config = configparser.ConfigParser()
@@ -29,7 +29,7 @@ def configSetHCVBounds(lower, upper):
         config.write(config_file)
     
     
-def configGetHCVBounds():
+def configGetMarkersHCVBounds():
     checkConfig()
 
     config = configparser.ConfigParser()
@@ -42,7 +42,8 @@ def configGetHCVBounds():
     hsv_lower = config.get("Markers","hsv_lower").split()
     hsv_upper = config.get("Markers","hsv_upper").split()
 
-    return np.array(hsv_lower), np.array(hsv_upper)
+    return np.array([int(hsv_lower[0]),int(hsv_lower[1]),int(hsv_lower[2])]),\
+             np.array([int(hsv_upper[0]),int(hsv_upper[1]),int(hsv_upper[2])])
 
 
 def configSetMarkerPoints(points):#[[526, 422], [47, 285], [579, 114], [199, 33]]
