@@ -1,3 +1,4 @@
+import argparse
 import cv2
 import numpy as np
 from pathlib import Path
@@ -52,23 +53,20 @@ def get_hcv_bounds(cap):
         
         key = cv2.waitKey(10)
         if  key == 27:#Esc
-            cap.release()
             cv2.destroyAllWindows()
             return
         if key == 13:#Enter
-            cap.release()
             cv2.destroyAllWindows()
-            # conf.configSetHCVBounds(lower_green, upper_green)
             return lower_green, upper_green
 
 
-def config_set_markers_hcv_bound():
-    bounds = get_hcv_bounds() 
-    if not bounds:
-        print("no value")
-        return
-    lower, upper = bounds
-    conf.configSetMarkersHCVBounds(lower, upper)   
+def config_set_markers_hcv_bound(cap):
+    bounds = get_hcv_bounds(cap) 
+    if bounds:
+        lower, upper = bounds
+        conf.configSetMarkersHCVBounds(lower, upper)
+        return True
+    return False   
 
 
 def getMarkersPoints(cap, lower_hcv_bound, upper_hcv_bound):
@@ -107,12 +105,14 @@ def configSetMarkerPoints(cap):
     bounds = conf.configGetMarkersHCVBounds()
     if not bounds:
         print("HCV bouds not found")
-        return
+        return False
     lower,upper = bounds
     marker_points = getMarkersPoints(cap, lower, upper)
     if marker_points:
         conf.configSetMarkerPoints(marker_points)
         print("Marker points saved")
+        return True
+    return False
 
 
 def calcPerspective(marker_points,width,height):
@@ -130,17 +130,67 @@ def calcPerspective(marker_points,width,height):
 
 def get_perspective():
     marker_points = conf.configGetMarkerPoints()
+    if not marker_points:
+        return 0,0,False
     width = int(conf.configGetValue("frame_width"))
     height = int(conf.configGetValue("frame_height"))
     persp = calcPerspective(marker_points, width, height)
-    return persp, (width, height)
+    return persp, (width, height), True
+
+
+def open_camera():
+    camnum = conf.configGetValue("camnum")
+    if not camnum:
+        print("Using default cameranum - 2")
+        camnum = 2
+    else:
+        camnum = int(camnum)
+    return cv2.VideoCapture(camnum)
+
+
+def show_warped(cap, show_original = True):
+    persp, size, exist = get_perspective()
+    if not exist:
+        print("There is no perspective, reset markers")
+        return     
+    ret, frame = cap.read()
+    while ret:
+        imgOutput = cv2.warpPerspective(frame, persp, size)
+        if show_original:
+            cv2.imshow("Origin, ESC to exit", frame)
+        cv2.imshow("Warped, ESC to exit", imgOutput)
+        if cv2.waitKey(10) == 27:#ESC
+            break
+        ret, frame = cap.read()
+    cv2.destroyAllWindows()
+
+
+def main():
+    parser = argparse.ArgumentParser(description = "Configuring marker points")
+    parser.add_argument("--hcvbound", action="store_true")
+    parser.add_argument("--markersreset", action="store_true")
+    parser.add_argument("--show", action="store_true")
+    parser.add_argument('--camnum', type=int, help='provide an integer (default: 2)')
+    # parser.add_argument("--cam_chanel", action="store_true") changing cam num
+    args = parser.parse_args()
+    
+    if args.camnum:
+        conf.configSetValue("camnum", str(args.camnum))
+        print("Camera num saved")
+    
+    cap = open_camera()
+    
+    if args.hcvbound:
+        config_set_markers_hcv_bound(cap)
+
+    if args.markersreset:
+        configSetMarkerPoints(cap)
+    
+    if args.show:
+        show_warped(cap)
+
+    cap.release()
+    cv2.destroyAllWindows()
 
 if (__name__ == "__main__"):
-    cap = cv2.VideoCapture(2)    
-    marker_points = conf.configGetMarkerPoints()
-
-    persp, size = get_perspective()    
-    _, frame = cap.read()
-    imgOutput = cv2.warpPerspective(frame, persp, size)
-    cv2.imshow("Output",imgOutput)
-    cv2.waitKey(0)
+    main()
