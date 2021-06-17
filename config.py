@@ -165,10 +165,20 @@ def show_warped(cap, show_original = True):
     cv2.destroyAllWindows()
 
 
+def setTargetHCVBound(cap):
+    bounds = get_hcv_bounds(cap) 
+    if bounds:
+        lower, upper = bounds
+        conf.configSetTargetHCVBounds(lower, upper)
+        return True
+    return False  
+
+
 def main():
     parser = argparse.ArgumentParser(description = "Configuring marker points")
-    parser.add_argument("--hcvbound", action="store_true")
+    parser.add_argument("--markershcv", action="store_true")
     parser.add_argument("--markersreset", action="store_true")
+    parser.add_argument("--targethcv", action="store_true")
     parser.add_argument("--show", action="store_true")
     parser.add_argument('--camnum', type=int, help='provide an integer (default: 2)')
     # parser.add_argument("--cam_chanel", action="store_true") changing cam num
@@ -180,12 +190,15 @@ def main():
     
     cap = open_camera()
     
-    if args.hcvbound:
+    if args.markershcv:
         config_set_markers_hcv_bound(cap)
 
     if args.markersreset:
         configSetMarkerPoints(cap)
     
+    if args.targethcv:
+        setTargetHCVBound(cap)
+
     if args.show:
         show_warped(cap)
 
