@@ -1,4 +1,5 @@
 import argparse
+from multiprocessing.connection import Listener
 import cv2
 import numpy as np
 from pathlib import Path
@@ -31,12 +32,23 @@ def get_target_points(frame, lower_hcv_bound, upper_hcv_bound):
             approx = cv2.approxPolyDP(cnt,0.02*perimetr,True)
             x, y, w, h = cv2.boundingRect(approx)
             points.append([x+w//2, y+h//2])
-    cv2.imshow("qwe", frame)
+    # cv2.imshow("qwe", frame)
     # cv2.waitKey(10)
     return points
 
 
 def main():
+    address = ('localhost', 6000)     # family is deduced to be 'AF_INET'
+    listener = Listener(address, authkey=b'secret password')
+    conn = listener.accept()
+    print('connection accepted from', listener.last_accepted)
+    while True:
+        msg = conn.recv()
+        # do something with msg
+        if msg == 'close':
+            conn.close()
+            break
+    listener.close()
     cap = config.open_camera()
     # config.show_warped(cap)
     bounds = conf.configGetTargetHCVBounds()
