@@ -5,9 +5,14 @@ config/ -- saving config
 
 config.py - configuring marker point settings, getting perspective matrix
 -options:
-    --hcvbound : interactive config for markers bound and save
+    --markershcv : interactive config for markers bound and save
     --markersreset : calculate markers points and save
+    --targethcv : targethcv bound interactive config
     --show : for showing result
     --camnum : setting up camera number    
 
-cameraopencv.py - using  features
+server.py - runs udp server, also thread that finding target poitns
+ugp input messages:
+    b'gt' - get target points
+    b'gs' - get size of warped window
+    
