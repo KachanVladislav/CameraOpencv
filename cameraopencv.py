@@ -5,8 +5,10 @@ import config
 
 def main():
     cap = cv2.VideoCapture(2)
-    persp, size = config.get_perspective()
-
+    persp, size, suc = config.get_perspective()
+    if not suc:
+        print("there is no perspective")
+        return
     while True:
         _, frame = cap.read() 
         imgOutput = cv2.warpPerspective(frame, persp, size)
